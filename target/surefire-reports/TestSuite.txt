@@ -1,0 +1,19 @@
+-------------------------------------------------------------------------------
+Test set: TestSuite
+-------------------------------------------------------------------------------
+Tests run: 18, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 90.154 s <<< FAILURE! - in TestSuite
+tryAuthCourierWithoutPasswordReturnBadRequest on tryAuthCourierWithoutPasswordReturnBadRequest(LoginCourierTest)(LoginCourierTest)  Time elapsed: 60.393 s  <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <400> but was <504>.
+
+	at LoginCourierTest.tryAuthCourierWithoutPasswordReturnBadRequest(LoginCourierTest.java:44)
+
+getOrderListForCreatedCourierNotNull on getOrderListForCreatedCourierNotNull(OrderListTest)(OrderListTest)  Time elapsed: 3.137 s  <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <200> but was <404>.
+
+	at OrderListTest.getOrdersCount(OrderListTest.java:87)
+	at OrderListTest.getOrderListForCreatedCourierNotNull(OrderListTest.java:50)
+
