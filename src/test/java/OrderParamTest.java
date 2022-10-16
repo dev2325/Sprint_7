@@ -1,3 +1,4 @@
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -5,7 +6,7 @@ import org.junit.runners.Parameterized;
 import ru.yandex.practikum.client.OrderActions;
 import ru.yandex.practikum.dto.OrderRequest;
 import ru.yandex.practikum.generator.OrderRequestGenerator;
-import ru.yandex.practikum.utils.Utils;
+import ru.yandex.practikum.utils.ResponseCheck;
 
 import static ru.yandex.practikum.config.Config.COLOR_BLACK;
 import static ru.yandex.practikum.config.Config.COLOR_GREY;
@@ -36,10 +37,11 @@ public class OrderParamTest {
     }
 
     @Test
+    @DisplayName("Place new order with different colors positive test")
     public void placeOrderDifferentColorsPositiveTest() {
         randomOrderRequest.setColor(colors); // установим объекту заказа массив цветов
         Response responseNewOrder = orderActions.placeOrder(randomOrderRequest); // размещаем заказ и сохраняем ответ
-        Utils.checkResponseReturnSuccessCreatedCode(responseNewOrder); // проверяем код ответа
-        Utils.checkPlaceNewOrderReturnTrackNotNull(responseNewOrder); // проверяем тело ответа
+        ResponseCheck.checkResponseReturnSuccessCreatedCode(responseNewOrder); // проверяем код ответа
+        ResponseCheck.checkPlaceNewOrderReturnTrackNotNull(responseNewOrder); // проверяем тело ответа
     }
 }

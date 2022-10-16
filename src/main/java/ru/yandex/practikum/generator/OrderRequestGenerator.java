@@ -9,7 +9,8 @@ import java.util.Date;
 import java.util.Random;
 
 import static io.restassured.RestAssured.given;
-import static ru.yandex.practikum.config.Config.getBaseUri;
+import static ru.yandex.practikum.config.Config.BASE_URL;
+import static ru.yandex.practikum.config.Config.STATIONS_SEARCH;
 
 public class OrderRequestGenerator {
 
@@ -45,8 +46,9 @@ public class OrderRequestGenerator {
     public static String getMetroStation() {
         // получение списка метро и сохранение "number" первой станции из массива данных
         String metroNumber = given()
-                .baseUri(getBaseUri())
-                .get("/api/v1/stations/search?s=")
+                .baseUri(BASE_URL)
+                .queryParam("s", "")
+                .get(STATIONS_SEARCH)
                 .then().extract().body().path("[0].number");
         return metroNumber;
     }

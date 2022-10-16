@@ -1,5 +1,7 @@
 import io.qameta.allure.Step;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Test;
 import ru.yandex.practikum.client.CourierActions;
 import ru.yandex.practikum.client.OrderActions;
@@ -9,11 +11,12 @@ import ru.yandex.practikum.dto.OrderRequest;
 import ru.yandex.practikum.generator.CourierRequestGenerator;
 import ru.yandex.practikum.generator.LoginRequestGenerator;
 import ru.yandex.practikum.generator.OrderRequestGenerator;
-import ru.yandex.practikum.utils.Utils;
+import ru.yandex.practikum.utils.ResponseCheck;
 
 import static io.restassured.RestAssured.given;
-import static ru.yandex.practikum.config.Config.getBaseUri;
+import static ru.yandex.practikum.config.Config.BASE_URL;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static ru.yandex.practikum.config.Config.ORDERS;
 
 public class OrderListTest {
 
@@ -27,12 +30,13 @@ public class OrderListTest {
 
     // простая проверка что в системе есть хоть один заказ
     @Test
+    @DisplayName("Check total list of orders is not null")
     public void getTotalOrderListNotNull() {
         Response response = given()
                 .header("Content-type", "application/json")
-                .baseUri(getBaseUri())
+                .baseUri(BASE_URL)
                 .when()
-                .get("/api/v1/orders");
+                .get(ORDERS);
 
         response.then().assertThat().body("orders", notNullValue());
     }
@@ -43,19 +47,19 @@ public class OrderListTest {
     не ноль, удаляем курьера. тест падает т.к. получение количества заказов курьера не работает
     */
     @Test
+    @DisplayName("Check list of orders for created courier is not null")
     public void getOrderListForCreatedCourierNotNull() {
         courierId = createCourier(); // регистрируем курьера и сохраняем id
         trackNum = placeOrder(); // размещаем заказ и сохраняем track
         acceptOrder(); // принимаем заказ
         getOrdersCount(); // проверяем что у курьера заказов не ноль
-        courierActions.delete(courierId); // удаляем курьера
     }
 
     @Step("Create courier")
     public Integer createCourier() {
-        Response responseNewCourier = courierActions.create(randomCourierRequest); // регистрируем курьера и сохраняем ответ
-        Utils.checkResponseReturnSuccessCreatedCode(responseNewCourier); // проверяем код ответа
-        Utils.checkResponseReturnOkTrueMessage(responseNewCourier); // проверяем тело ответа
+        Response responseNewCourier = courierActions.createCourier(randomCourierRequest); // регистрируем курьера и сохраняем ответ
+        ResponseCheck.checkResponseReturnSuccessCreatedCode(responseNewCourier); // проверяем код ответа
+        ResponseCheck.checkResponseReturnOkTrueMessage(responseNewCourier); // проверяем тело ответа
 
         LoginRequest loginRequest = LoginRequestGenerator.prepareFrom(randomCourierRequest); // подготовим объект c данными для авторизации
         Integer courierId = courierActions.loginReturnId(loginRequest); // логинимся проверяем что курьер действительно создался, сохраним его id
@@ -65,8 +69,8 @@ public class OrderListTest {
     @Step("Place order")
     public Integer placeOrder() {
         Response responseNewOrder = orderActions.placeOrder(randomOrderRequest); // размещаем заказ и сохраняем ответ
-        Utils.checkResponseReturnSuccessCreatedCode(responseNewOrder); // проверяем код ответа
-        Utils.checkPlaceNewOrderReturnTrackNotNull(responseNewOrder); // проверяем тело ответа
+        ResponseCheck.checkResponseReturnSuccessCreatedCode(responseNewOrder); // проверяем код ответа
+        ResponseCheck.checkPlaceNewOrderReturnTrackNotNull(responseNewOrder); // проверяем тело ответа
 
         Integer trackNum = responseNewOrder.then().extract().body().path("track"); // из ответа о размещ.заказа берем его track
         return trackNum;
@@ -77,14 +81,21 @@ public class OrderListTest {
         Response orderInfoResponse = orderActions.getOrderByTrackNum(trackNum); // по треку запрашиваем полную информацию о заказе
         Integer orderId = orderInfoResponse.then().extract().body().path("order.id"); // из информации о заказе берем его id
         Response acceptOrderResponse = orderActions.acceptOrder(courierId, orderId); // принимаем заказ
-        Utils.checkResponseReturnSuccessCode(acceptOrderResponse); // проверяем код ответа
-        Utils.checkResponseReturnOkTrueMessage(acceptOrderResponse); // проверяем тело ответа
+        ResponseCheck.checkResponseReturnSuccessCode(acceptOrderResponse); // проверяем код ответа
+        ResponseCheck.checkResponseReturnOkTrueMessage(acceptOrderResponse); // проверяем тело ответа
     }
 
     @Step("Get orders count")
     public void getOrdersCount() {
-        Response ordersCountResponse = courierActions.getOrdersCount(courierId); // получаем информацию о количестве заказов курьера
-        Utils.checkResponseReturnSuccessCode(ordersCountResponse); // проверяем код ответа
+        Response ordersCountResponse = orderActions.getOrdersCount(courierId); // получаем информацию о количестве заказов курьера
+        ResponseCheck.checkResponseReturnSuccessCode(ordersCountResponse); // проверяем код ответа
         ordersCountResponse.then().assertThat().body("ordersCount", notNullValue()); // проверяем что заказов не ноль
+    }
+
+    @After
+    public void cleanData() {
+        if (courierId != null) {
+            courierActions.deleteCourier(courierId);
+        }
     }
 }

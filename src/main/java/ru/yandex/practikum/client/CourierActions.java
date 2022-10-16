@@ -6,28 +6,28 @@ import ru.yandex.practikum.dto.LoginRequest;
 import java.io.File;
 
 import static io.restassured.RestAssured.given;
-import static ru.yandex.practikum.config.Config.getBaseUri;
+import static ru.yandex.practikum.config.Config.*;
 
 public class CourierActions {
 
-    public Response create(Object randomCourierRequest) {
+    public Response createCourier(Object randomCourierRequest) {
         return given()
                 .header("Content-type", "application/json")
-                .baseUri(getBaseUri())
+                .baseUri(BASE_URL)
                 .and()
                 .body(randomCourierRequest)
                 .when()
-                .post("/api/v1/courier");
+                .post(COURIER);
     }
 
     public Response login(LoginRequest loginRequest) {
         Response response = given()
                 .header("Content-type", "application/json")
-                .baseUri(getBaseUri())
+                .baseUri(BASE_URL)
                 .and()
                 .body(loginRequest)
                 .when()
-                .post("/api/v1/courier/login");
+                .post(COURIER_LOGIN);
         return response;
     }
 
@@ -39,29 +39,21 @@ public class CourierActions {
     public Response loginWithFile(File file) {
         Response response = given()
                 .header("Content-type", "application/json")
-                .baseUri(getBaseUri())
+                .baseUri(BASE_URL)
                 .and()
                 .body(file)
                 .when()
-                .post("/api/v1/courier/login");
+                .post(COURIER_LOGIN);
         return response;
     }
 
-    public boolean delete(Integer courierId) {
+    public boolean deleteCourier(Integer courierId) {
         boolean isDeleted = given()
                 .header("Content-type", "application/json")
-                .baseUri(getBaseUri())
-                .delete("/api/v1/courier/{id}", courierId)
+                .baseUri(BASE_URL)
+                .delete(COURIER + "/" + courierId)
                 .then().extract().body().path("ok");
 //        System.out.println(courierId + " был удален? " + isDeleted);
         return isDeleted;
-    }
-
-    public Response getOrdersCount(Integer courierId) {
-        Response response = given()
-                .header("Content-type", "application/json")
-                .baseUri(getBaseUri())
-                .get("/api/v1/courier/{courierId}/ordersCount", courierId);
-        return response;
     }
 }

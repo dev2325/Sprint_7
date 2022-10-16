@@ -1,0 +1,12 @@
+-------------------------------------------------------------------------------
+Test set: OrderListTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 6.321 s <<< FAILURE! - in OrderListTest
+getOrderListForCreatedCourierNotNull(OrderListTest)  Time elapsed: 2.583 s  <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <200> but was <404>.
+
+	at OrderListTest.getOrdersCount(OrderListTest.java:91)
+	at OrderListTest.getOrderListForCreatedCourierNotNull(OrderListTest.java:55)
+
